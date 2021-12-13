@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
-import ky from "ky";
 import { TodosList } from "../components/TodosList";
 import type { Todo } from "../types";
 import { useNavigate } from "react-router";
 import { useTodos } from "../hooks/useTodos";
+import * as API from "../todo-api";
 
 type TodosOverviewProps = {
   loading: boolean;
@@ -33,11 +33,7 @@ export const TodosOverview: React.FC<TodosOverviewProps> = ({ loading }) => {
       e.target.title.value = "";
 
       // Actually send the todo to the server.
-      const returnedTodo = await ky
-        .post("https://jsonplaceholder.typicode.com/todos", {
-          json: todo,
-        })
-        .json<Todo>();
+      const returnedTodo = await API.updateTodo(todo);
 
       // Update the todo with the returned data.
       updateTodo(returnedTodo);
@@ -48,9 +44,7 @@ export const TodosOverview: React.FC<TodosOverviewProps> = ({ loading }) => {
   const handleUpdateTodo = useCallback(
     async (todo: Todo) => {
       updateTodo(todo);
-      await ky.patch(`https://jsonplaceholder.typicode.com/todos/${todo.id}`, {
-        json: todo,
-      });
+      await API.updateTodo(todo);
     },
     [updateTodo]
   );
@@ -58,7 +52,7 @@ export const TodosOverview: React.FC<TodosOverviewProps> = ({ loading }) => {
   const handleDeleteTodo = useCallback(
     async (todo: Todo) => {
       deleteTodo(todo);
-      await ky.delete(`https://jsonplaceholder.typicode.com/todos/${todo.id}`);
+      await API.deleteTodo(todo.id);
     },
     [deleteTodo]
   );
