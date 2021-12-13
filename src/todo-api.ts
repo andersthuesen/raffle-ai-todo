@@ -15,5 +15,5 @@ export const deleteTodo = async (id: number): Promise<void> => {
 };
 
 export const updateTodo = async (todo: Todo): Promise<Todo> => {
-  return ky.put(`${API_ENDPOINT}/${todo.id}`, { json: todo }).json<Todo>();
+  return ky.patch(`${API_ENDPOINT}/${todo.id}`, { json: todo }).json<Todo>();
 };

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { TodosOverview, TodoDetails } from "./views";
 import { useTodos } from "./hooks/useTodos";
 import { Todo } from "./types";
-import { usePromise } from "./hooks/useData";
+import { usePromise } from "./hooks/usePromise";
 import { getTodos } from "./todo-api";
 
 function App() {
