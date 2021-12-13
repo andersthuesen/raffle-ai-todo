@@ -1,44 +1,36 @@
 import { useState, useEffect, useCallback } from "react";
-import ky from "ky";
 
-// Define abstract data structure (discriminated union).
-type LoadingResult = {
-  type: "loading";
+export type PendingResult = {
+  type: "pending";
 };
-type SuccessResult<T> = {
-  type: "success";
+
+export type ResolvedResult<T> = {
+  type: "resolved";
   data: T;
 };
-type ErrorResult<E> = {
-  type: "error";
-  error: E;
+
+export type RejectedResult = {
+  type: "rejected";
+  error: Error;
 };
 
-type Result<T, E> = SuccessResult<T> | ErrorResult<E> | LoadingResult;
+export type Result<T> = ResolvedResult<T> | RejectedResult | PendingResult;
 
-export const useData = <T>(url: string) => {
-  const [result, setResult] = useState<Result<T, Error>>({ type: "loading" });
+export const usePromise = <T>(fn: () => Promise<T>) => {
+  const [result, setResult] = useState<Result<T>>({ type: "pending" });
 
-  const fetchData = useCallback(() => {
-    const controller = new AbortController();
-    const { signal } = controller;
-
-    const request = ky.get(url, { signal }).json<T>();
-    request
+  const resolve = useCallback(() => {
+    fn()
       .then((data) => {
-        setResult({ type: "success", data });
+        setResult({ type: "resolved", data });
       })
       .catch((error) => {
-        setResult({ type: "error", error });
+        setResult({ type: "rejected", error });
       });
-
-    return controller.abort;
-  }, [url]);
+  }, [fn]);
 
   // fetch data on request
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => resolve(), [resolve]);
 
   return result;
 };
